@@ -49,8 +49,9 @@ func deleteBook(b *Book) {
 		b.Previous.Next = b.Next
 	}
 	
+	//runtime.GC()
 	b = nil
-	runtime.GC() //force garbage collector, for testing
+	//runtime.GC() //force garbage collector, for testing
 }
 
 func findBookById(id int) *Book {
@@ -59,7 +60,6 @@ func findBookById(id int) *Book {
 			return b
 		}
 	}
-	
 	return nil
 }
 
