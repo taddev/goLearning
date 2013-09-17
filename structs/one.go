@@ -3,7 +3,9 @@ package main
 import (
 	"fmt"
 	"strings"
-	"runtime"
+	//"runtime"
+	"bufio"
+	"os"
 )
 
 type Book struct {
@@ -15,6 +17,7 @@ type Book struct {
 
 var Head *Book
 var Tail *Book
+var count int
 
 func addBook(id int, title string, author string) {
 	insertBook := Book{id, title, author, nil, nil}
@@ -48,8 +51,7 @@ func deleteBook(b *Book) {
 		b.Next.Previous = b.Previous
 		b.Previous.Next = b.Next
 	}
-	
-	//runtime.GC()
+
 	b = nil
 	//runtime.GC() //force garbage collector, for testing
 }
@@ -63,19 +65,39 @@ func findBookById(id int) *Book {
 	return nil
 }
 
+func getString(inputMessage string) string {
+	in := bufio.NewReader(os.Stdin)
+	fmt.Printf("Enter %s: ", inputMessage)
+	inputString, _ := in.ReadString('\n')
+	inputString = inputString[:len(inputString)-1] //remove the newline character from the end
+	return inputString
+}
+
+func getInt(inputMessage string) int {
+	var inputInt int
+	
+	fmt.Printf("Enter %s: ", inputMessage)
+	fmt.Scanf("%d\n", &inputInt)
+	fmt.Println(inputInt)
+	
+	return inputInt
+}
+
 func printList() {
 	if Head == nil {
 		fmt.Println("Empty List")
 	} else {
 		for b := Head; b != nil; b = b.Next {
+			if( b == Head ) {
+				fmt.Println(" ")
+				fmt.Println("**********")
+			}
 			fmt.Println("Book ID: ", b.Id)
 			fmt.Println("Book Author: ", b.Author)
 			fmt.Println("Book Title: ", b.Title)
-
-			if b.Next != nil {
-				fmt.Println("*****")
-			}
+			fmt.Println("**********")
 		}
+		fmt.Println(" ")
 	}
 }
 
@@ -97,10 +119,7 @@ func printMenu() string {
 func main() {
 	//books := make(map[*Book]int)
 	//books[Book{"Mike Chriton", "Timeline"}] = 1
-
-	addBook(1, "Tom Hanks", "Cast Away")
-	addBook(2, "Bill Hicks", "Smoke if you Got'em")
-
+	count = 1
 	var menuChoice string
 
 	for menuChoice != "q" {
@@ -108,15 +127,18 @@ func main() {
 
 		switch menuChoice {
 		case "a":
-			fmt.Println("You selected A")
+			author := getString("Author")
+			title := getString("Title")
+			addBook(count, title, author)
+			count++
 		case "d":
-			//fmt.Println("You selected C")
-			b := findBookById(1)
+			id := getInt("Id")
+			b := findBookById(id)
 			deleteBook(b)
 		case "p":
 			printList()
 		case "q":
-			break
+			fmt.Println("Goodbye")
 		default:
 			fmt.Printf("%s is not a valid choice\n", menuChoice)
 		}

@@ -1,0 +1,21 @@
+# Host number one
+host firstlanhost.bigdinosaur.org {
+	hardware ethernet 00:00:00:00:00:01;
+	fixed-address 10.10.10.101;
+#	ddns-hostname "firstlanhost";
+}
+		
+# Host number two
+host secondlanhost.bigdinosaur.org {
+	hardware ethernet 00:00:00:00:00:02;
+	fixed-address 10.10.10.102;
+#	ddns-hostname "secondlanhost";
+}
+     
+# Host number three
+host thirdlanhost.bigdinosaur.org {
+	hardware ethernet 00:00:00:00:00:03;
+#	hardware ethernet 00:00:00:00:00:04;
+	fixed-address 10.10.10.103;
+#	ddns-hostname "thirdlanhost";
+}
