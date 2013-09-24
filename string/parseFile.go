@@ -41,7 +41,7 @@ func openFile(fileName string) *os.File {
 	return file
 }
 
-func parseFile(file *os.File) map[string]Host {
+func parseFile(file *os.File, subnet string) map[string]Host {
 	hostMap := make(map[string]Host)
 	var checkedLine string
 	var goodLine bool
@@ -78,13 +78,13 @@ func parseFile(file *os.File) map[string]Host {
 						case "hardware":
 							hostMac = hostFields[2]
 							hostMac = hostMac[:len(hostMac)-1]
+							tempMac := strings.Split(hostMac, ":")
+							hostMac = strings.Join(tempMac, "")
 							//fmt.Println("Mac:", hostMac)
 						case "fixed-address":
 							hostIp = hostFields[1]
 							hostIp = hostIp[:len(hostIp)-1]
-							tempIp := strings.Split(hostIp, ".")
-							tempIp[3] = "0"
-							hostSubnet = strings.Join(tempIp, ".")
+							hostSubnet = subnet
 							//hostSubnet = "0.0.0.0"
 							//fmt.Println("Ip:", hostIp)
 						}
@@ -104,7 +104,7 @@ func parseFile(file *os.File) map[string]Host {
 /*
  * Format the output to my liking
  */
-func printMap(hostMap map[string]Host) {
+func printMap(hostMap map[string]Host, dhcpServer string) {
 	//fmt.Println("***")
 	for key, value := range hostMap {
 		//fmt.Println("Host:", key)
@@ -112,13 +112,16 @@ func printMap(hostMap map[string]Host) {
 		//fmt.Println("Mac:", value.Mac)
 		//fmt.Println("Sub:", value.Subnet)
 		//fmt.Println("***")
-		fmt.Printf("%s,%s,%s,%s,%s\n", value.Subnet, value.Ip, key, value.Mac, key)
+		//Dhcp Server 10.0.0.20 Scope 10.0.10.0 Add reservedip 10.0.10.21 001122334455 "Server1" "" "DHCP"
+		fmt.Printf("dhcp server %s Scope %s Add reservedip %s %s \"%s\" \"%s\" \"DHCP\"\n", dhcpServer, value.Subnet, value.Ip, value.Mac, key, key)
 	}
 }
 
 func main() {
 	file := openFile(os.Args[1])
-	hostMap := parseFile(file)
-	printMap(hostMap)
+	subnet := os.Args[2]
+	dhcpServer := os.Args[3]
+	hostMap := parseFile(file, subnet)
+	printMap(hostMap, dhcpServer)
 	file.Close()
 }
