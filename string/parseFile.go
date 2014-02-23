@@ -7,12 +7,20 @@ import (
 	"strings"
 )
 
+
+// Host stores information pertaining to a single network computer.
+// This information includes the machines IP address, MAC address, 
+// and subnet.
 type Host struct {
 	Ip     string
 	Mac    string
 	Subnet string
 }
 
+// checkLine takes in a single line from the input file and checks
+// that it is not a comment; a line starting with the hash (#) mark.
+// If the line is not a comment line then it is returned with a true,
+// otherwise an empty string is returned with a false.
 func checkLine(inputLine string) (string, bool) {
 	inputLine = strings.TrimSpace(inputLine)
 
@@ -25,6 +33,9 @@ func checkLine(inputLine string) (string, bool) {
 	return "", false
 }
 
+// openFile takes in a string filename and attempts to open it as
+// a path to a file.
+// The file pointer is returned when it is opened correctly.
 func openFile(fileName string) *os.File {
 	file, err := os.Open(fileName)
 	if err != nil {
@@ -41,6 +52,11 @@ func openFile(fileName string) *os.File {
 	return file
 }
 
+// parseFile takes in a file pointer and a user defined string describing
+// the subnet. There is not enough information in the input file to correctly
+// infer the subnet so we have to have the user input that manually. 
+// The input file is parsed to find all the host configurations, this information
+// is stored in a map and returned once the file has been fully parsed.
 func parseFile(file *os.File, subnet string) map[string]Host {
 	hostMap := make(map[string]Host)
 	var checkedLine string
@@ -51,7 +67,7 @@ func parseFile(file *os.File, subnet string) map[string]Host {
 
 	//fmt.Println("***")
 	/*
-	 * Big Ugly Parsing loop, surprisingly only Big O(n^2)
+	 * Big Ugly Parsing loop, surprisingly only Big O(n)
 	 */
 	for fileLine.Scan() {
 		if err := fileLine.Err(); err != nil {
@@ -101,9 +117,8 @@ func parseFile(file *os.File, subnet string) map[string]Host {
 	return hostMap
 }
 
-/*
- * Format the output to my liking
- */
+// printMap takes in the map returned from our parseFile function and
+// walked through each key,value pair printing it out.
 func printMap(hostMap map[string]Host, dhcpServer string) {
 	//fmt.Println("***")
 	for key, value := range hostMap {

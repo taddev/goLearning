@@ -1,69 +1,18 @@
 package main
 
 import (
-	"fmt"
-	"strings"
-	//"runtime"
 	"bufio"
+	"fmt"
 	"os"
+	"strings"
 )
 
 type Book struct {
-	Id            int
 	Title, Author string
-	Previous      *Book
-	Next          *Book
 }
 
-var Head *Book
-var Tail *Book
 var count int
-
-func addBook(id int, title string, author string) {
-	insertBook := Book{id, title, author, nil, nil}
-
-	if Head == nil {
-		Head = &insertBook
-		Tail = &insertBook
-	} else {
-		Tail.Next = &insertBook
-		Tail.Next.Previous = Tail
-		Tail = Tail.Next
-	}
-}
-
-func deleteBook(b *Book) {
-	if b == nil {
-		fmt.Println("No Book Referenced for Deletion")
-		return
-	}
-
-	if Head == Tail {
-		Head = nil
-		Tail = nil
-	} else if b == Head {
-		Head = Head.Next
-		Head.Previous = nil
-	} else if b == Tail {
-		Tail = Tail.Previous
-		Tail.Next = nil
-	} else {
-		b.Next.Previous = b.Previous
-		b.Previous.Next = b.Next
-	}
-
-	b = nil
-	//runtime.GC() //force garbage collector, for testing
-}
-
-func findBookById(id int) *Book {
-	for b := Head; b != nil; b = b.Next {
-		if b.Id == id {
-			return b
-		}
-	}
-	return nil
-}
+var books = map[int]Book{}
 
 func getString(inputMessage string) string {
 	in := bufio.NewReader(os.Stdin)
@@ -83,18 +32,16 @@ func getInt(inputMessage string) int {
 	return inputInt
 }
 
-func printList() {
-	if Head == nil {
+func printBooks() {
+	if len(books) == 0 {
 		fmt.Println("Empty List")
 	} else {
-		for b := Head; b != nil; b = b.Next {
-			if b == Head {
-				fmt.Println(" ")
-				fmt.Println("**********")
-			}
-			fmt.Println("Book ID: ", b.Id)
-			fmt.Println("Book Author: ", b.Author)
-			fmt.Println("Book Title: ", b.Title)
+		fmt.Println(" ")
+		fmt.Println("**********")
+		for k, v := range books {
+			fmt.Println("Book ID: ", k)
+			fmt.Println("Book Author: ", v.Author)
+			fmt.Println("Book Title: ", v.Title)
 			fmt.Println("**********")
 		}
 		fmt.Println(" ")
@@ -119,7 +66,8 @@ func printMenu() string {
 func main() {
 	//books := make(map[*Book]int)
 	//books[Book{"Mike Chriton", "Timeline"}] = 1
-	count = 1
+	//books := make(map[int]Book)
+	//count = 0
 	var menuChoice string
 
 	for menuChoice != "q" {
@@ -129,14 +77,13 @@ func main() {
 		case "a":
 			author := getString("Author")
 			title := getString("Title")
-			addBook(count, title, author)
+			books[count] = Book{title, author}
 			count++
 		case "d":
 			id := getInt("Id")
-			b := findBookById(id)
-			deleteBook(b)
+			delete(books, id)
 		case "p":
-			printList()
+			printBooks()
 		case "q":
 			fmt.Println("Goodbye")
 		default:
